@@ -21,6 +21,18 @@ lineemotes.pack.appendPack = function (title, stickerid, length) {
     if (typeof length    === 'undefined') { length = 40; log(`Length is not explicitly defined, defaulting to ${length}`); }
     
     if (typeof title !== 'string') { throw 'ParsingError: Title is not a string'; }
+    if (Number.isInteger(stickerid) === false) { 
+        if (typeof stickerid === 'string') {
+            stickerid = parseInt(stickerid, 10);
+            if (isNaN(stickerid)) {
+                throw 'ParsingError: First sticker ID is not a number';
+            } else {
+                log(`First sticker ID passed as a string, parsed as integer ${stickerid}`);
+            }
+        } else { 
+            throw 'ParsingError: First sticker ID is not a number nor string';
+        }
+    }
     if (Number.isInteger(length) === false) { 
         if (length === null) {
             length = 40;
@@ -38,10 +50,13 @@ lineemotes.pack.appendPack = function (title, stickerid, length) {
     }
     
     var stickerpack = pack.getPack(title, stickerid, length);
-    storage.pushPack(stickerpack);
-    lineemotes.menu.rebuild();
-    lineemotes.menu.appendPack(stickerid);
- 
+    if (lineemotes.storage.getPack(stickerid) === null) {
+        storage.pushPack(stickerpack);
+        lineemotes.menu.rebuild();
+        lineemotes.menu.appendPack(stickerid);
+    } else {
+        log('Pack already exists in storage');
+    }
     return true;
 };
 
